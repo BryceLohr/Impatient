@@ -48,6 +48,7 @@ public class
     String wcPath = args[ 1 ];
 
     Properties properties = new Properties();
+    properties.setProperty("mapred.job.queue.name", "development");
     AppProps.setApplicationJarClass( properties, Main.class );
     HadoopFlowConnector flowConnector = new HadoopFlowConnector( properties );
 

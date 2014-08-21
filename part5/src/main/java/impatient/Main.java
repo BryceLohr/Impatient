@@ -59,6 +59,9 @@ public class
     String tfidfPath = args[ 3 ];
 
     Properties properties = new Properties();
+    properties.setProperty("mapred.job.queue.name", "development");
+    properties.setProperty("cascading.tmp.dir", "/tmp/blohr/cascading"); // Avoids AccessControlException on /data/tmp:hcat:hdfs:drwxr-xr-x
+
     AppProps.setApplicationJarClass( properties, Main.class );
     HadoopFlowConnector flowConnector = new HadoopFlowConnector( properties );
 
@@ -116,7 +119,7 @@ public class
     dfPipe = new Rename( dfPipe, token, df_token );
     dfPipe = new Each( dfPipe, new Insert( lhs_join, 1 ), Fields.ALL );
 
-    // join to bring together all the components for calculating TF-IDF 
+    // join to bring together all the components for calculating TF-IDF
     // the D side of the join is smaller, so it goes on the RHS
     Pipe idfPipe = new HashJoin( dfPipe, lhs_join, dPipe, rhs_join );
 
@@ -136,7 +139,7 @@ public class
 
     // keep track of the word counts, which are useful for QA
     Pipe wcPipe = new Pipe( "wc", tfPipe );
-  
+
     Fields count = new Fields( "count" );
     wcPipe = new SumBy( wcPipe, tf_token, tf_count, count, long.class );
     wcPipe = new Rename( wcPipe, tf_token, token );

@@ -66,6 +66,9 @@ public class
     String checkPath = args[ 5 ];
 
     Properties properties = new Properties();
+    properties.setProperty("mapred.job.queue.name", "development");
+    properties.setProperty("cascading.tmp.dir", "/tmp/blohr/cascading"); // Avoids AccessControlException on /data/tmp:hcat:hdfs:drwxr-xr-x
+
     AppProps.setApplicationJarClass( properties, Main.class );
     HadoopFlowConnector flowConnector = new HadoopFlowConnector( properties );
 

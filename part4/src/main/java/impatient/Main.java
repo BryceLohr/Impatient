@@ -53,6 +53,7 @@ public class
     String stopPath = args[ 2 ];
 
     Properties properties = new Properties();
+    properties.setProperty("mapred.job.queue.name", "development");
     AppProps.setApplicationJarClass( properties, Main.class );
     HadoopFlowConnector flowConnector = new HadoopFlowConnector( properties );
 
