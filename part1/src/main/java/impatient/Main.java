@@ -18,9 +18,17 @@
  * limitations under the License.
  */
 
+/*
+ * To run example:
+ * $ hadoop jar build/libs/impatient.jar -D mapreduce.job.queuename=development data/rain.txt output/rain
+ */
+
 package impatient;
 
 import java.util.Properties;
+
+import org.apache.hadoop.util.GenericOptionsParser;
+import org.apache.hadoop.mapred.JobConf;
 
 import cascading.flow.FlowDef;
 import cascading.flow.hadoop.HadoopFlowConnector;
@@ -28,27 +36,40 @@ import cascading.pipe.Pipe;
 import cascading.property.AppProps;
 import cascading.scheme.hadoop.TextDelimited;
 import cascading.tap.Tap;
+import cascading.tap.SinkMode;
 import cascading.tap.hadoop.Hfs;
 
 
-public class
-  Main
+public class Main
   {
-  public static void
-  main( String[] args )
+  public static void main( String[] args ) throws Exception
     {
-    String inPath = args[ 0 ];
-    String outPath = args[ 1 ];
+    JobConf jobConf = new JobConf();
+    String[] otherArgs = new GenericOptionsParser( jobConf, args ).getRemainingArgs();
 
-    Properties properties = new Properties();
-    AppProps.setApplicationJarClass( properties, Main.class );
+    System.out.println("Input path: " + otherArgs[ 0 ] + " Output path: " + otherArgs[ 1 ]);
+
+    // AppProps.setApplicationJarClass( properties, Main.class );
+    Properties properties = AppProps.appProps()
+      .setName( "Impatient part 1" )
+      .setJarClass( Main.class )
+      .buildProperties( jobConf );
+
+    String inPath = otherArgs[ 0 ];
+    String outPath = otherArgs[ 1 ];
+
+    // System.out.println("Conf tmpjars:");
+    // System.out.println(conf.get("tmpjars"));
+    // System.out.println("Classpath:");
+    // System.out.println(System.getProperty("java.class.path"));
+
     HadoopFlowConnector flowConnector = new HadoopFlowConnector( properties );
 
     // create the source tap
     Tap inTap = new Hfs( new TextDelimited( true, "\t" ), inPath );
 
     // create the sink tap
-    Tap outTap = new Hfs( new TextDelimited( true, "\t" ), outPath );
+    Tap outTap = new Hfs( new TextDelimited( true, "\t" ), outPath, SinkMode.REPLACE );
 
     // specify a pipe to connect the taps
     Pipe copyPipe = new Pipe( "copy" );
